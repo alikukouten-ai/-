@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>奇跡のガチャ / THE MIRACLE GACHA</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --gold:#ffd76a;
+    --gold2:#ffb43a;
+    --violet:#8b7cff;
+    --blue:#5b6bff;
+    --text:#e9edff;
+    --muted:#8b93b8;
+    --line:rgba(255,255,255,.09);
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:44px 18px 70px;
+    background:
+      radial-gradient(900px 520px at 50% -10%, rgba(91,107,255,.28), transparent 70%),
+      radial-gradient(700px 420px at 105% 105%, rgba(255,183,58,.10), transparent 70%),
+      #070812;
+    color:var(--text);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .container{
+    width:100%;
+    max-width:460px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  .hidden{display:none !important}
+
+  /* ---------- Header ---------- */
+  header{text-align:center;margin-bottom:6px}
+
+  .badge{
+    display:inline-block;
+    font-size:10.5px;
+    letter-spacing:.2em;
+    font-weight:700;
+    padding:6px 15px;
+    border-radius:999px;
+    border:1px solid rgba(255,215,106,.4);
+    color:var(--gold);
+    background:rgba(255,215,106,.07);
+    margin-bottom:16px;
+  }
+
+  h1{
+    font-size:30px;
+    letter-spacing:.06em;
+    background:linear-gradient(120deg,#ffffff,#ffd76a 55%,#ffb43a);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    color:transparent;
+  }
+
+  .en-title{
+    margin-top:7px;
+    font-size:10.5px;
+    letter-spacing:.32em;
+    font-weight:600;
+    color:#7d86ad;
+  }
+
+  .sub{
+    margin-top:12px;
+    font-size:12.5px;
+    line-height:1.75;
+    color:var(--muted);
+  }
+
+  /* ---------- Panel ---------- */
+  .panel{
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:20px;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    box-shadow:0 22px 44px -26px rgba(0,0,0,.95);
+  }
+
+  .panel h2{
+    font-size:12.5px;
+    letter-spacing:.08em;
+    font-weight:700;
+    margin-bottom:14px;
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    color:var(--text);
+  }
+  .panel h2 span{
+    font-size:10px;
+    letter-spacing:.18em;
+    color:var(--muted);
+    font-weight:600;
+  }
+
+  /* ---------- Email form ---------- */
+  .field-label{
+    display:block;
+    font-size:10.5px;
+    letter-spacing:.14em;
+    color:var(--muted);
+    font-weight:700;
+    margin-bottom:8px;
+  }
+
+  .email-input{
+    width:100%;
+    padding:14px 15px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:rgba(0,0,0,.3);
+    color:var(--text);
+    font-family:inherit;
+    font-size:14px;
+    outline:none;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .email-input::placeholder{color:#5b6386}
+  .email-input:focus{
+    border-color:rgba(139,124,255,.8);
+    box-shadow:0 0 0 3px rgba(139,124,255,.16);
+  }
+  .email-input.error{
+    border-color:rgba(255,90,90,.75);
+    box-shadow:0 0 0 3px rgba(255,90,90,.15);
+  }
+
+  .hint{
+    font-size:11px;
+    line-height:1.5;
+    margin-top:9px;
+    min-height:17px;
+    color:var(--muted);
+    transition:color .2s;
+  }
+  .hint.error{color:#ff7b7b;font-weight:600}
+  .hint.ok{color:#6fe0a0;font-weight:600}
+
+  .shake{animation:shake .38s}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-6px)}
+    40%{transform:translateX(6px)}
+    60%{transform:translateX(-4px)}
+    80%{transform:translateX(4px)}
+  }
+
+  /* ---------- Registered box ---------- */
+  .registered-box{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:15px;
+    border-radius:14px;
+    background:rgba(111,224,160,.09);
+    border:1px solid rgba(111,224,160,.35);
+    animation:slideIn .4s ease;
+  }
+  .registered-box .check{
+    width:34px;height:34px;
+    flex:0 0 34px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#3fd98a,#22a866);
+    color:#04220f;
+    font-size:17px;font-weight:800;
+  }
+  .registered-box .r-text{
+    display:flex;flex-direction:column;gap:3px;
+    min-width:0;
+  }
+  .registered-box .r-text strong{
+    font-size:12.5px;letter-spacing:.05em;color:#7ef0b3;
+  }
+  .registered-box .r-text span{
+    font-size:11.5px;color:#b9c2e0;word-break:break-all;
+  }
+
+  /* ---------- Dots ---------- */
+  .dots-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+  }
+  .dots-label{
+    font-size:10.5px;
+    letter-spacing:.14em;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .dots{display:flex;gap:7px}
+  .dot{
+    width:11px;height:11px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--gold2));
+    box-shadow:0 0 10px rgba(255,183,58,.65);
+    transition:.3s;
+  }
+  .dot.used{
+    background:rgba(255,255,255,.09);
+    box-shadow:none;
+  }
+
+  /* ---------- Slot ---------- */
+  .slot{
+    position:relative;
+    height:192px;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:radial-gradient(120% 120% at 50% 0%, rgba(139,124,255,.18), rgba(255,255,255,.015) 60%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:0 18px;
+    text-align:center;
+    overflow:hidden;
+    transition:border-color .35s, box-shadow .35s, background .35s;
+  }
+
+  .slot-icon{
+    font-size:54px;
+    line-height:1;
+    transition:transform .3s;
+  }
+
+  .slot-label{
+    font-size:12px;
+    letter-spacing:.05em;
+    line-height:1.65;
+    color:var(--muted);
+  }
+
+  .slot.spinning .slot-icon{animation:pulse .3s infinite alternate}
+  @keyframes pulse{
+    from{transform:scale(.88);opacity:.55}
+    to{transform:scale(1.14);opacity:1}
+  }
+
+  .slot.win{
+    border-color:rgba(255,215,106,.8);
+    background:radial-gradient(120% 120% at 50% 0%, rgba(255,183,58,.28), rgba(255,255,255,.02) 65%);
+    box-shadow:
+      0 0 0 1px rgba(255,215,106,.3),
+      0 0 45px rgba(255,183,58,.45),
+      inset 0 0 60px rgba(255,183,58,.18);
+  }
+  .slot.win .slot-icon{animation:pop .65s cubic-bezier(.2,1.6,.4,1)}
+  .slot.win .slot-label{
+    color:var(--gold);
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.1em;
+  }
+  @keyframes pop{
+    0%{transform:scale(.35);opacity:0}
+    60%{transform:scale(1.28)}
+    100%{transform:scale(1);opacity:1}
+  }
+
+  .slot.lose{border-color:rgba(120,130,170,.32)}
+  .slot.lose .slot-icon{opacity:.5}
+  .slot.lose .slot-label{color:#767e9f}
+
+  .particle{
+    position:absolute;
+    top:46%;
+    font-size:15px;
+    pointer-events:none;
+    animation:floatUp 1.35s ease-out forwards;
+  }
+  @keyframes floatUp{
+    0%{opacity:0;transform:translateY(0) scale(.4)}
+    20%{opacity:1}
+    100%{opacity:0;transform:translateY(-115px) scale(1.15)}
+  }
+
+  /* ---------- Buttons ---------- */
+  .actions{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:18px;
+  }
+
+  .btn{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:14px;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:700;
+    letter-spacing:.04em;
+    cursor:pointer;
+    transition:transform .18s, box-shadow .18s, opacity .18s;
+  }
+  .btn:active:not(:disabled){transform:scale(.985)}
+
+  .btn-primary{
+    background:linear-gradient(135deg,var(--violet),var(--blue));
+    color:#fff;
+    box-shadow:0 10px 26px -8px rgba(91,107,255,.7);
+  }
+  .btn-primary:hover:not(:disabled){transform:translateY(-2px)}
+
+  .btn-gold{
+    background:linear-gradient(135deg,var(--gold),var(--gold2));
+    color:#2b1a00;
+    box-shadow:0 10px 26px -8px rgba(255,183,58,.7);
+  }
+  .btn-gold:hover:not(:disabled){transform:translateY(-2px)}
+
+  .btn:disabled{
+    opacity:.32;
+    cursor:not-allowed;
+    box-shadow:none;
+    transform:none;
+  }
+
+  /* ---------- History ---------- */
+  .empty{
+    font-size:12px;
+    color:#666e90;
+    text-align:center;
+    padding:14px 0;
+    letter-spacing:.04em;
+  }
+
+  .history-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    font-size:12px;
+    padding:11px 13px;
+    border-radius:11px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--line);
+    margin-bottom:8px;
+    animation:slideIn .35s ease;
+  }
+  .history-item:last-child{margin-bottom:0}
+
+  .history-item.win{
+    background:rgba(255,183,58,.13);
+    border-color:rgba(255,215,106,.45);
+    color:var(--gold);
+    font-weight:700;
+  }
+
+  .h-num{color:var(--muted);font-weight:600;letter-spacing:.06em}
+  .history-item.win .h-num{color:rgba(255,215,106,.75)}
+
+  @keyframes slideIn{
+    from{opacity:0;transform:translateY(-7px)}
+    to{opacity:1;transform:none}
+  }
+
+  /* ---------- Rules ---------- */
+  .rules ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .rules li{
+    font-size:12.5px;
+    line-height:1.6;
+    padding-left:18px;
+    position:relative;
+    color:#c9cfec;
+  }
+  .rules li::before{
+    content:"";
+    position:absolute;
+    left:2px;
+    top:7px;
+    width:6px;height:6px;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--violet),var(--blue));
+  }
+  .rules li span{
+    display:block;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.02em;
+    margin-top:2px;
+  }
+
+  footer{
+    text-align:center;
+    font-size:10px;
+    letter-spacing:.16em;
+    color:#4e5578;
+    margin-top:4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ===== Header ===== -->
+  <header>
+    <div class="badge">お一人様 5回 / 5 DRAWS</div>
+    <h1>奇跡のガチャ</h1>
+    <p class="en-title">THE MIRACLE GACHA</p>
+    <p class="sub">
+      お一人様 5回まで ・ メールアドレスでの参加登録が必要です<br>
+      Up to 5 draws per person · Email registration required
+    </p>
+  </header>
+
+  <!-- ===== Registration Panel ===== -->
+  <div class="panel">
+    <h2>参加登録 <span>REGISTRATION</span></h2>
+
+    <!-- 登録フォーム / registration form -->
+    <div id="registerForm">
+      <label class="field-label" for="emailInput">
+        メールアドレス / EMAIL ADDRESS
+      </label>
+      <input
+        type="email"
+        id="emailInput"
+        class="email-input"
+        placeholder="you@example.com"
+        autocomplete="email"
+        spellcheck="false"
+      >
+      <p class="hint" id="emailHint">
+        登録にはメールアドレスが必要です / Email is required to register
+      </p>
+      <div class="actions">
+        <button class="btn btn-primary" id="registerBtn">
+          ログインして登録する / LOG IN &amp; REGISTER
+        </button>
+      </div>
+    </div>
+
+    <!-- 登録済み / registered -->
+    <div id="registeredBox" class="registered-box hidden">
+      <span class="check">✓</span>
+      <div class="r-text">
+        <strong>登録完了 / REGISTERED</strong>
+        <span id="registeredEmail"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Draw Panel ===== -->
+  <div class="panel">
+
+    <div class="dots-row">
+      <span class="dots-label">残り回数 / DRAWS LEFT</span>
+      <div class="dots">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="slot" id="slot">
+      <div class="slot-icon" id="slotIcon">🎫</div>
+      <div class="slot-label" id="slotLabel">
+        まずは参加登録をしてください<br>Please register first
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-gold" id="drawBtn" disabled>
+        抽選する（要登録） / DRAW (register first)
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ===== History ===== -->
+  <div class="panel">
+    <h2>抽選履歴 <span>DRAW HISTORY</span></h2>
+    <div id="history">
+      <p class="empty" id="historyEmpty">
+        まだ抽選していません / No draws yet
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== Rules ===== -->
+  <div class="panel rules">
+    <h2>ルール <span>RULES</span></h2>
+    <ul>
+      <li>
+        メールアドレスでログインし、参加登録をしてください。
+        <span>Log in with your email address and register to join.</span>
+      </li>
+      <li>
+        登録したメールアドレスは抽選参加者として記録されます。
+        <span>Your email is recorded as a registered participant.</span>
+      </li>
+      <li>
+        お一人様 5回まで抽選できます。登録状態はブラウザに保存され、再読み込みしても保持されます。
+        <span>Up to 5 draws per person. Your registration is saved in the browser and kept after reload.</span>
+      </li>
+    </ul>
+  </div>
+
+  <footer>GOOD LUCK — 幸運を祈ります</footer>
+
+</div>
+
+<script>
+  /* ============================================
+     設定 / CONFIG
+     ============================================ */
+  const TOTAL_DRAWS = 5;
+  const WIN_RATE    = 0.01;   // 1%
+
+  /* localStorage キー / storage keys */
+  const KEY_SESSION  = 'gacha_session_v1';   // 現在のログインユーザー
+  const KEY_ACCOUNTS = 'gacha_accounts_v1';  // 登録済みメール台帳
+
+  /* ============================================
+     ストレージ / STORAGE HELPERS
+     ============================================ */
+  function loadJSON(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function saveJSON(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      /* ストレージ不可の環境では黙って無視 */
+    }
+  }
+
+  /* ============================================
+     状態 / STATE
+     ============================================ */
+  let registered = false;
+  let userEmail  = '';
+  let drawsLeft  = TOTAL_DRAWS;
+  let drawing    = false;
+  let drawCount  = 0;
+  let history    = [];          // [{ index, win }]
+
+  /* 登録済みメール台帳 / registered accounts */
+  let accounts = loadJSON(KEY_ACCOUNTS, {});
+
+  /* ============================================
+     要素 / ELEMENTS
+     ============================================ */
+  const registerForm  = document.getElementById('registerForm');
+  const registeredBox = document.getElementById('registeredBox');
+  const registeredEmailEl = document.getElementById('registeredEmail');
+  const emailInput    = document.getElementById('emailInput');
+  const emailHint     = document.getElementById('emailHint');
+  const registerBtn   = document.getElementById('registerBtn');
+
+  const drawBtn     = document.getElementById('drawBtn');
+  const slot        = document.getElementById('slot');
+  const slotIcon    = document.getElementById('slotIcon');
+  const slotLabel   = document.getElementById('slotLabel');
+  const dots        = Array.from(document.querySelectorAll('.dot'));
+  const historyEl   = document.getElementById('history');
+  const historyEmpty= document.getElementById('historyEmpty');
+
+  /* ============================================
+     描画 / RENDER
+     ============================================ */
+  function renderDots() {
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('used', i >= drawsLeft);
+    });
+  }
+
+  function renderDrawBtn() {
+    if (drawing) {
+      drawBtn.disabled = true;
+      return;
+    }
+
+    if (!registered) {
+      drawBtn.disabled = true;
+      drawBtn.textContent = '抽選する（要登録） / DRAW (register first)';
+      return;
+    }
+
+    if (drawsLeft <= 0) {
+      drawBtn.disabled = true;
+      drawBtn.textContent = '抽選終了 / NO DRAWS LEFT';
+      return;
+    }
+
+    drawBtn.disabled = false;
+    drawBtn.textContent =
+      `抽選する（残り${drawsLeft}回） / DRAW (${drawsLeft} left)`;
+  }
+
+  function renderHistory() {
+    historyEl.querySelectorAll('.history-item').forEach(el => el.remove());
+
+    if (history.length === 0) {
+      historyEmpty.style.display = '';
+      return;
+    }
+
+    historyEmpty.style.display = 'none';
+
+    /* 新しい順に表示 / newest first */
+    history.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'history-item' + (item.win ? ' win' : '');
+      row.innerHTML =
+        `<span class="h-num">#${item.index}</span>` +
+        `<span class="h-res">${item.win ? '🏆 大当たり / JACKPOT' : '✖ ハズレ / NO WIN'}</span>`;
+      historyEl.appendChild(row);
+    });
+  }
+
+  function renderSlotIdle() {
+    slot.classList.remove('win', 'lose', 'spinning');
+
+    if (!registered) {
+      slotIcon.textContent = '🎫';
+      slotLabel.innerHTML = 'まずは参加登録をしてください<br>Please register first';
+      return;
+    }
+
+    if (drawsLeft <= 0) {
+      slotIcon.textContent = '🔒';
+      slotLabel.innerHTML = '抽選は終了しました<br>All draws are finished';
+      return;
+    }
+
+    slotIcon.textContent = '🎟️';
+    slotLabel.innerHTML = '抽選の準備ができました<br>Ready to draw!';
+  }
+
+  /* ============================================
+     セッション保存 / SAVE SESSION
+     ============================================ */
+  function saveSession() {
+    if (!registered) return;
+
+    accounts[userEmail] = {
+      drawsLeft: drawsLeft,
+      drawCount: drawCount,
+      history:   history
+    };
+    saveJSON(KEY_ACCOUNTS, accounts);
+
+    saveJSON(KEY_SESSION, {
+      email:     userEmail,
+      drawsLeft: drawsLeft,
+      drawCount: drawCount,
+      history:   history
+    });
+  }
+
+  /* ============================================
+     復元 / RESTORE
+     ============================================ */
+  function applyAccount(data) {
+    registered = true;
+    userEmail  = data.email;
+    drawsLeft  = typeof data.drawsLeft === 'number' ? data.drawsLeft : TOTAL_DRAWS;
+    drawCount  = typeof data.drawCount === 'number' ? data.drawCount : 0;
+    history    = Array.isArray(data.history) ? data.history : [];
+
+    /* フォーム → 登録済み表示に切り替え */
+    registerForm.classList.add('hidden');
+    registeredEmailEl.textContent = userEmail;
+    registeredBox.classList.remove('hidden');
+
+    renderDots();
+    renderHistory();
+    renderSlotIdle();
+    renderDrawBtn();
+  }
+
+  function restoreSession() {
+    /* 1) ログイン中セッションを優先 */
+    const session = loadJSON(KEY_SESSION, null);
+
+    if (session && session.email && accounts[session.email]) {
+      /* 台帳の方が新しい場合に備えてマージ（セッション優先） */
+      applyAccount(session);
+      return;
+    }
+
+    /* 2) セッションが無ければ台帳から直近の登録を復元 */
+    const emails = Object.keys(accounts);
+    if (emails.length > 0) {
+      const email = emails[emails.length - 1];
+      const acc = accounts[email];
+      applyAccount({
+        email:     email,
+        drawsLeft: acc.drawsLeft,
+        drawCount: acc.drawCount,
+        history:   acc.history || []
+      });
+
+      saveJSON(KEY_SESSION, {
+        email:     email,
+        drawsLeft: acc.drawsLeft,
+        drawCount: acc.drawCount,
+        history:   acc.history || []
+      });
+    }
+  }
+
+  /* ============================================
+     メール検証 / EMAIL VALIDATION
+     ============================================ */
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function setHint(message, type) {
+    emailHint.textContent = message;
+    emailHint.className = 'hint' + (type ? ' ' + type : '');
+  }
+
+  function markError(message) {
+    setHint(message, 'error');
+    emailInput.classList.add('error');
+    emailInput.classList.remove('shake');
+    void emailInput.offsetWidth;   /* リフロー強制 */
+    emailInput.classList.add('shake');
+    emailInput.focus();
+  }
+
+  emailInput.addEventListener('input', () => {
+    emailInput.classList.remove('error');
+    if (!registered) {
+      setHint('登録にはメールアドレスが必要です / Email is required to register', '');
+    }
+  });
+
+  /* ============================================
+     参加登録 / REGISTER
+     ============================================ */
+  function handleRegister() {
+    if (registered) return;
+
+    const email = emailInput.value.trim().toLowerCase();
+
+    /* 空欄チェック */
+    if (!email) {
+      markError('メールアドレスを入力してください / Please enter your email address');
+      return;
+    }
+
+    /* 形式チェック */
+    if (!EMAIL_RE.test(email)) {
+      markError('有効なメールアドレスを入力してください / Please enter a valid email address');
+      return;
+    }
+
+    /* 既登録アカウント：前回の続きから復元 */
+    if (accounts[email]) {
+      const acc = accounts[email];
+      applyAccount({
+        email:     email,
+        drawsLeft: acc.drawsLeft,
+        drawCount: acc.drawCount,
+        history:   acc.history || []
+      });
+      saveJSON(KEY_SESSION, {
+        email:     email,
+        drawsLeft: acc.drawsLeft,
+        drawCount: acc.drawCount,
+        history:   acc.history || []
+      });
+      setHint('おかえりなさい！前回の続きから再開します / Welcome back! Resuming your session', 'ok');
+      return;
+    }
+
+    /* 新規登録 / new registration */
+    registered = true;
+    userEmail  = email;
+    drawsLeft  = TOTAL_DRAWS;
+    drawCount  = 0;
+    history    = [];
+
+    accounts[userEmail] = {
+      drawsLeft: drawsLeft,
+      drawCount: drawCount,
+      history:   history
+    };
+    saveJSON(KEY_ACCOUNTS, accounts);
+    saveJSON(KEY_SESSION, {
+      email:     userEmail,
+      drawsLeft: drawsLeft,
+      drawCount: drawCount,
+      history:   history
+    });
+
+    /* 表示を登録済みに切り替え */
+    emailInput.classList.remove('error');
+    registerForm.classList.add('hidden');
+    registeredEmailEl.textContent = userEmail;
+    registeredBox.classList.remove('hidden');
+
+    setHint('登録が完了しました / Registration complete', 'ok');
+
+    renderDots();
+    renderSlotIdle();
+    renderDrawBtn();
+  }
+
+  registerBtn.addEventListener('click', handleRegister);
+  emailInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleRegister();
+    }
+  });
+
+  /* ============================================
+     抽選 / DRAW
+     ============================================ */
+  drawBtn.addEventListener('click', () => {
+    if (!registered || drawing || drawsLeft <= 0) return;
+
+    drawing = true;
+    drawBtn.disabled = true;
+
+    /* --- スピン演出 / spinning animation --- */
+    slot.classList.remove('win', 'lose');
+    slot.classList.add('spinning');
+
+    const symbols = ['✦', '★', '◆', '？', '✧', '◇'];
+    let n = 0;
+
+    const spinTimer = setInterval(() => {
+      slotIcon.textContent = symbols[n++ % symbols.length];
+      slotLabel.innerHTML = '抽選中…<br>DRAWING…';
+    }, 70);
+
+    /* --- 結果判定 / result --- */
+    setTimeout(() => {
+      clearInterval(spinTimer);
+      slot.classList.remove('spinning');
+
+      const isWin = Math.random() < WIN_RATE;
+
+      drawsLeft--;
+      drawCount++;
+
+      history.push({ index: drawCount, win: isWin });
+
+      renderDots();
+      showResult(isWin, drawCount);
+      renderHistory();
+      saveSession();
+
+      drawing = false;
+      renderDrawBtn();
+    }, 1300);
+  });
+
+  /* ============================================
+     結果表示 / SHOW RESULT
+     ============================================ */
+  function showResult(isWin, index) {
+
+    if (isWin) {
+      slot.classList.add('win');
+      slotIcon.textContent = '🏆';
+      slotLabel.innerHTML = '大当たり！！<br>JACKPOT!!';
+      burstParticles();
+    } else {
+      slot.classList.add('lose');
+      slotIcon.textContent = '✖';
+      slotLabel.innerHTML = 'ハズレ…<br>NO WIN…';
+    }
+  }
+
+  /* ============================================
+     紙吹雪 / PARTICLES
+     ============================================ */
+  function burstParticles() {
+    const chars = ['✨', '⭐', '💫', '🌟'];
+
+    for (let i = 0; i < 16; i++) {
+      const p = document.createElement('span');
+      p.className = 'particle';
+      p.textContent = chars[i % chars.length];
+      p.style.left = (50 + (Math.random() * 70 - 35)) + '%';
+      p.style.animationDelay = (Math.random() * 0.28) + 's';
+      p.style.fontSize = (12 + Math.random() * 8) + 'px';
+
+      slot.appendChild(p);
+      setTimeout(() => p.remove(), 1800);
+    }
+  }
+
+  /* ============================================
+     初期化 / INIT
+     ============================================ */
+  renderDots();
+  renderDrawBtn();
+  restoreSession();
+</script>
+
+</body>
+</html>

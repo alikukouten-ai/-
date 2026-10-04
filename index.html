@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="奇跡のガチャ - 10% Win Rate Gacha with GitHub Login">
+<title>奇跡のガチャ / THE MIRACLE GACHA</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --gold:#ffd76a;
+    --gold2:#ffb43a;
+    --violet:#8b7cff;
+    --blue:#5b6bff;
+    --text:#e9edff;
+    --muted:#8b93b8;
+    --line:rgba(255,255,255,.09);
+    --green:#6fe0a0;
+    --red:#ff7b7b;
+    --gh:#24292f;
+    --gh-border:#30363d;
+    --gh-text:#c9d1d9;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:44px 18px 70px;
+    background:
+      radial-gradient(900px 520px at 50% -10%, rgba(91,107,255,.28), transparent 70%),
+      radial-gradient(700px 420px at 105% 105%, rgba(255,183,58,.10), transparent 70%),
+      #070812;
+    color:var(--text);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .container{
+    width:100%;
+    max-width:460px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  .hidden{display:none !important}
+
+  /* ---------- Header ---------- */
+  header{text-align:center;margin-bottom:6px}
+
+  .badge{
+    display:inline-block;
+    font-size:10.5px;
+    letter-spacing:.2em;
+    font-weight:700;
+    padding:6px 15px;
+    border-radius:999px;
+    border:1px solid rgba(255,215,106,.4);
+    color:var(--gold);
+    background:rgba(255,215,106,.07);
+    margin-bottom:16px;
+  }
+
+  h1{
+    font-size:30px;
+    letter-spacing:.06em;
+    background:linear-gradient(120deg,#ffffff,#ffd76a 55%,#ffb43a);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    color:transparent;
+  }
+
+  .en-title{
+    margin-top:7px;
+    font-size:10.5px;
+    letter-spacing:.32em;
+    font-weight:600;
+    color:#7d86ad;
+  }
+
+  .sub{
+    margin-top:12px;
+    font-size:12.5px;
+    line-height:1.75;
+    color:var(--muted);
+  }
+
+  /* ---------- Panel ---------- */
+  .panel{
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:20px;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    box-shadow:0 22px 44px -26px rgba(0,0,0,.95);
+  }
+
+  .panel h2{
+    font-size:12.5px;
+    letter-spacing:.08em;
+    font-weight:700;
+    margin-bottom:14px;
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    color:var(--text);
+  }
+  .panel h2 span{
+    font-size:10px;
+    letter-spacing:.18em;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .panel h2 .count{
+    margin-left:auto;
+    font-size:10.5px;
+    font-weight:800;
+    letter-spacing:.06em;
+    padding:3px 10px;
+    border-radius:999px;
+    background:rgba(255,183,58,.16);
+    border:1px solid rgba(255,215,106,.4);
+    color:var(--gold);
+  }
+
+  /* ---------- GitHub login form ---------- */
+  .field-label{
+    display:block;
+    font-size:10.5px;
+    letter-spacing:.14em;
+    color:var(--muted);
+    font-weight:700;
+    margin-bottom:8px;
+  }
+
+  .gh-input-wrap{
+    position:relative;
+  }
+  .gh-input-wrap .gh-icon{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#7d86ad;
+    font-size:16px;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+  }
+
+  .gh-input{
+    width:100%;
+    padding:14px 15px 14px 42px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:rgba(0,0,0,.3);
+    color:var(--text);
+    font-family:inherit;
+    font-size:14px;
+    outline:none;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .gh-input::placeholder{color:#5b6386}
+  .gh-input:focus{
+    border-color:rgba(139,124,255,.8);
+    box-shadow:0 0 0 3px rgba(139,124,255,.16);
+  }
+  .gh-input.error{
+    border-color:rgba(255,90,90,.75);
+    box-shadow:0 0 0 3px rgba(255,90,90,.15);
+  }
+
+  .hint{
+    font-size:11px;
+    line-height:1.5;
+    margin-top:9px;
+    min-height:17px;
+    color:var(--muted);
+    transition:color .2s;
+  }
+  .hint.error{color:#ff7b7b;font-weight:600}
+  .hint.ok{color:#6fe0a0;font-weight:600}
+  .hint.loading{color:#b3a9ff;font-weight:600}
+
+  .shake{animation:shake .38s}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-6px)}
+    40%{transform:translateX(6px)}
+    60%{transform:translateX(-4px)}
+    80%{transform:translateX(4px)}
+  }
+
+  /* ---------- GH login button ---------- */
+  .btn-gh{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    background:#238636;
+    color:#fff;
+    box-shadow:0 10px 26px -8px rgba(35,134,54,.65);
+  }
+  .btn-gh:hover:not(:disabled){
+    background:#2ea043;
+    transform:translateY(-2px);
+  }
+  .btn-gh svg{
+    width:18px;height:18px;
+    fill:currentColor;
+    flex:0 0 18px;
+  }
+
+  /* ---------- Registered box ---------- */
+  .registered-box{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:15px;
+    border-radius:14px;
+    background:rgba(111,224,160,.09);
+    border:1px solid rgba(111,224,160,.35);
+    animation:slideIn .4s ease;
+  }
+  .registered-box .avatar{
+    width:44px;height:44px;
+    flex:0 0 44px;
+    border-radius:50%;
+    border:2px solid rgba(111,224,160,.5);
+    background:#0d1117;
+    object-fit:cover;
+  }
+  .registered-box .r-text{
+    display:flex;
+    flex-direction:column;gap:3px;
+    min-width:0;
+    flex:1;
+  }
+  .registered-box .r-text strong{
+    font-size:12.5px;letter-spacing:.05em;color:#7ef0b3;
+  }
+  .registered-box .r-text span{
+    font-size:13px;color:#dde3ff;font-weight:700;
+    word-break:break-all;
+    letter-spacing:.02em;
+  }
+  .registered-box .r-text .gh-link{
+    font-size:10.5px;
+    color:#7d86ad;
+    text-decoration:none;
+    font-weight:600;
+    letter-spacing:.02em;
+    transition:color .18s;
+  }
+  .registered-box .r-text .gh-link:hover{color:#b3a9ff}
+
+  .logout-btn{
+    flex:0 0 auto;
+    padding:8px 13px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.18);
+    background:rgba(0,0,0,.25);
+    color:#c9cfec;
+    font-family:inherit;
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:.08em;
+    cursor:pointer;
+    transition:background .18s, color .18s, border-color .18s;
+  }
+  .logout-btn:hover{
+    background:rgba(255,90,90,.14);
+    border-color:rgba(255,90,90,.5);
+    color:#ff9d9d;
+  }
+
+  /* ---------- Storage status ---------- */
+  .storage-status{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    font-size:10px;
+    letter-spacing:.1em;
+    font-weight:700;
+    color:#5f678a;
+    padding:8px;
+    border-radius:10px;
+    background:rgba(0,0,0,.25);
+    border:1px solid var(--line);
+    transition:color .3s, border-color .3s;
+    margin-top:12px;
+  }
+  .storage-status .indicator{
+    width:7px;height:7px;
+    border-radius:50%;
+    background:#5f678a;
+    transition:background .3s, box-shadow .3s;
+  }
+  .storage-status.saving{color:#b3a9ff;border-color:rgba(139,124,255,.4)}
+  .storage-status.saving .indicator{
+    background:#b3a9ff;
+    box-shadow:0 0 8px #b3a9ff;
+    animation:pulseDot .8s infinite alternate;
+  }
+  .storage-status.ok{color:#6fe0a0;border-color:rgba(111,224,160,.4)}
+  .storage-status.ok .indicator{
+    background:#6fe0a0;
+    box-shadow:0 0 8px #6fe0a0;
+  }
+  @keyframes pulseDot{
+    from{opacity:.4}
+    to{opacity:1}
+  }
+
+  /* ---------- Dots ---------- */
+  .dots-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+  }
+  .dots-label{
+    font-size:10.5px;
+    letter-spacing:.14em;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .dots{display:flex;gap:7px}
+  .dot{
+    width:11px;height:11px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--gold2));
+    box-shadow:0 0 10px rgba(255,183,58,.65);
+    transition:.3s;
+  }
+  .dot.used{
+    background:rgba(255,255,255,.09);
+    box-shadow:none;
+  }
+
+  /* ---------- Slot ---------- */
+  .slot{
+    position:relative;
+    height:192px;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:radial-gradient(120% 120% at 50% 0%, rgba(139,124,255,.18), rgba(255,255,255,.015) 60%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:0 18px;
+    text-align:center;
+    overflow:hidden;
+    transition:border-color .35s, box-shadow .35s, background .35s;
+  }
+
+  .slot-icon{
+    font-size:54px;
+    line-height:1;
+    transition:transform .3s;
+  }
+
+  .slot-label{
+    font-size:12px;
+    letter-spacing:.05em;
+    line-height:1.65;
+    color:var(--muted);
+  }
+
+  .slot.spinning .slot-icon{animation:pulse .3s infinite alternate}
+  @keyframes pulse{
+    from{transform:scale(.88);opacity:.55}
+    to{transform:scale(1.14);opacity:1}
+  }
+
+  .slot.win{
+    border-color:rgba(255,215,106,.8);
+    background:radial-gradient(120% 120% at 50% 0%, rgba(255,183,58,.28), rgba(255,255,255,.02) 65%);
+    box-shadow:
+      0 0 0 1px rgba(255,215,106,.3),
+      0 0 45px rgba(255,183,58,.45),
+      inset 0 0 60px rgba(255,183,58,.18);
+  }
+  .slot.win .slot-icon{animation:pop .65s cubic-bezier(.2,1.6,.4,1)}
+  .slot.win .slot-label{
+    color:var(--gold);
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.1em;
+  }
+  @keyframes pop{
+    0%{transform:scale(.35);opacity:0}
+    60%{transform:scale(1.28)}
+    100%{transform:scale(1);opacity:1}
+  }
+
+  .slot.lose{border-color:rgba(120,130,170,.32)}
+  .slot.lose .slot-icon{opacity:.5}
+  .slot.lose .slot-label{color:#767e9f}
+
+  .particle{
+    position:absolute;
+    top:46%;
+    font-size:15px;
+    pointer-events:none;
+    animation:floatUp 1.35s ease-out forwards;
+  }
+  @keyframes floatUp{
+    0%{opacity:0;transform:translateY(0) scale(.4)}
+    20%{opacity:1}
+    100%{opacity:0;transform:translateY(-115px) scale(1.15)}
+  }
+
+  /* ---------- Buttons ---------- */
+  .actions{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:18px;
+  }
+
+  .btn{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:14px;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:700;
+    letter-spacing:.04em;
+    cursor:pointer;
+    transition:transform .18s, box-shadow .18s, opacity .18s, background .18s;
+  }
+  .btn:active:not(:disabled){transform:scale(.985)}
+
+  .btn-primary{
+    background:linear-gradient(135deg,var(--violet),var(--blue));
+    color:#fff;
+    box-shadow:0 10px 26px -8px rgba(91,107,255,.7);
+  }
+  .btn-primary:hover:not(:disabled){transform:translateY(-2px)}
+
+  .btn-gold{
+    background:linear-gradient(135deg,var(--gold),var(--gold2));
+    color:#2b1a00;
+    box-shadow:0 10px 26px -8px rgba(255,183,58,.7);
+  }
+  .btn-gold:hover:not(:disabled){transform:translateY(-2px)}
+
+  .btn:disabled{
+    opacity:.32;
+    cursor:not-allowed;
+    box-shadow:none;
+    transform:none;
+  }
+
+  /* ---------- History ---------- */
+  .empty{
+    font-size:12px;
+    color:#666e90;
+    text-align:center;
+    padding:14px 0;
+    letter-spacing:.04em;
+  }
+
+  .history-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    font-size:12px;
+    padding:11px 13px;
+    border-radius:11px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--line);
+    margin-bottom:8px;
+    animation:slideIn .35s ease;
+  }
+  .history-item:last-child{margin-bottom:0}
+
+  .history-item.win{
+    background:rgba(255,183,58,.13);
+    border-color:rgba(255,215,106,.45);
+    color:var(--gold);
+    font-weight:700;
+  }
+
+  .h-num{color:var(--muted);font-weight:600;letter-spacing:.06em}
+  .history-item.win .h-num{color:rgba(255,215,106,.75)}
+
+  @keyframes slideIn{
+    from{opacity:0;transform:translateY(-7px)}
+    to{opacity:1;transform:none}
+  }
+
+  /* ---------- Winners list ---------- */
+  .winners-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .winners-head h2{margin-bottom:0}
+
+  .winner-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:13px 14px;
+    border-radius:13px;
+    background:linear-gradient(135deg,rgba(255,183,58,.10),rgba(255,183,58,.03));
+    border:1px solid rgba(255,215,106,.28);
+    margin-bottom:9px;
+    animation:slideIn .35s ease;
+  }
+  .winner-item:last-child{margin-bottom:0}
+
+  .winner-rank{
+    flex:0 0 30px;
+    height:30px;
+    border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--line);
+    color:var(--muted);
+  }
+  .winner-item:nth-child(1) .winner-rank{
+    background:linear-gradient(135deg,var(--gold),var(--gold2));
+    color:#2b1a00;border-color:transparent;
+    box-shadow:0 0 12px rgba(255,183,58,.5);
+  }
+  .winner-item:nth-child(2) .winner-rank{
+    background:linear-gradient(135deg,#e8e8f0,#b8b8c8);
+    color:#2a2a35;border-color:transparent;
+  }
+  .winner-item:nth-child(3) .winner-rank{
+    background:linear-gradient(135deg,#e0a878,#c08050);
+    color:#2a1500;border-color:transparent;
+  }
+
+  .winner-avatar{
+    width:34px;height:34px;
+    flex:0 0 34px;
+    border-radius:50%;
+    border:1.5px solid rgba(255,215,106,.5);
+    background:#0d1117;
+    object-fit:cover;
+  }
+
+  .winner-main{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+
+  .winner-name{
+    font-size:13px;
+    font-weight:800;
+    color:var(--gold);
+    letter-spacing:.03em;
+    word-break:break-all;
+    line-height:1.35;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .winner-name .gh-mark{
+    font-size:10px;
+    color:#7d86ad;
+    font-weight:600;
+    letter-spacing:.04em;
+  }
+
+  .winner-meta{
+    font-size:10px;
+    letter-spacing:.06em;
+    color:var(--muted);
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
+  .winner-count{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:10.5px;
+    font-weight:800;
+    padding:3px 9px;
+    border-radius:999px;
+    background:rgba(255,183,58,.18);
+    border:1px solid rgba(255,215,106,.45);
+    color:var(--gold);
+    letter-spacing:.04em;
+  }
+
+  .winner-empty{
+    text-align:center;
+    padding:26px 18px;
+  }
+  .winner-empty .emoji{
+    font-size:32px;
+    opacity:.45;
+    margin-bottom:10px;
+  }
+  .winner-empty p{
+    font-size:12px;
+    line-height:1.75;
+    color:#767e9f;
+    letter-spacing:.02em;
+  }
+
+  /* ---------- Rules ---------- */
+  .rules ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .rules li{
+    font-size:12.5px;
+    line-height:1.6;
+    padding-left:18px;
+    position:relative;
+    color:#c9cfec;
+  }
+  .rules li::before{
+    content:"";
+    position:absolute;
+    left:2px;
+    top:7px;
+    width:6px;height:6px;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--violet),var(--blue));
+  }
+  .rules li span{
+    display:block;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.02em;
+    margin-top:2px;
+  }
+
+  footer{
+    text-align:center;
+    font-size:10px;
+    letter-spacing:.16em;
+    color:#4e5578;
+    margin-top:4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ===== Header ===== -->
+  <header>
+    <div class="badge">お一人様 5回 / 5 DRAWS</div>
+    <h1>奇跡のガチャ</h1>
+    <p class="en-title">THE MIRACLE GACHA</p>
+    <p class="sub">
+      お一人様 5回まで ・ GitHub アカウントでの参加登録が必要です<br>
+      Up to 5 draws per person · GitHub account required
+    </p>
+  </header>
+
+  <!-- ===== Registration Panel ===== -->
+  <div class="panel">
+    <h2>参加登録 <span>REGISTRATION</span></h2>
+
+    <!-- 登録フォーム / registration form -->
+    <div id="registerForm">
+      <label class="field-label" for="ghInput">
+        GitHub ユーザー名 / GITHUB USERNAME
+      </label>
+      <div class="gh-input-wrap">
+        <span class="gh-icon">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+        </span>
+        <input
+          type="text"
+          id="ghInput"
+          class="gh-input"
+          placeholder="octocat"
+          autocomplete="username"
+          spellcheck="false"
+          maxlength="39"
+        >
+      </div>
+      <p class="hint" id="ghHint">
+        GitHub ユーザー名を入力してください / Enter your GitHub username
+      </p>
+      <div class="actions">
+        <button class="btn btn-gh" id="registerBtn">
+          <svg viewBox="0 0 16 16">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          GitHub でログイン / LOGIN WITH GITHUB
+        </button>
+      </div>
+    </div>
+
+    <!-- 登録済み / registered -->
+    <div id="registeredBox" class="registered-box hidden">
+      <img class="avatar" id="registeredAvatar" alt="avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44'><rect width='44' height='44' fill='%230d1117'/></svg>">
+      <div class="r-text">
+        <strong>ログイン中 / LOGGED IN</strong>
+        <span id="registeredName">—</span>
+        <a class="gh-link" id="registeredProfile" href="#" target="_blank" rel="noopener noreferrer">
+          github.com/—
+        </a>
+      </div>
+      <button class="logout-btn" id="logoutBtn" type="button">
+        ログアウト<br>LOGOUT
+      </button>
+    </div>
+
+    <!-- 保存状態 / storage status -->
+    <div class="storage-status" id="storageStatus">
+      <span class="indicator"></span>
+      <span id="storageStatusText">ローカル保存 / LOCAL ONLY</span>
+    </div>
+  </div>
+
+  <!-- ===== Draw Panel ===== -->
+  <div class="panel">
+
+    <div class="dots-row">
+      <span class="dots-label">残り回数 / DRAWS LEFT</span>
+      <div class="dots">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <div class="slot" id="slot">
+      <div class="slot-icon" id="slotIcon">🎫</div>
+      <div class="slot-label" id="slotLabel">
+        まずは参加登録をしてください<br>Please register first
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-gold" id="drawBtn" disabled>
+        抽選する（要登録） / DRAW (register first)
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ===== History ===== -->
+  <div class="panel">
+    <h2>抽選履歴 <span>DRAW HISTORY</span></h2>
+    <div id="history">
+      <p class="empty" id="historyEmpty">
+        まだ抽選していません / No draws yet
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== Winners ===== -->
+  <div class="panel">
+    <div class="winners-head">
+      <h2>
+        🏆 中当選者 <span>JACKPOT WINNERS</span>
+        <span class="count" id="winnersCount">0</span>
+      </h2>
+    </div>
+
+    <div id="winnersList"></div>
+
+    <div id="winnersEmpty" class="winner-empty hidden">
+      <div class="emoji">🎯</div>
+      <p>
+        まだ当選者はいません<br>
+        No winners yet
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== Rules ===== -->
+  <div class="panel rules">
+    <h2>ルール <span>RULES</span></h2>
+    <ul>
+      <li>
+        GitHub ユーザー名を入力して、参加登録をしてください。
+        <span>Enter your GitHub username and register to join.</span>
+      </li>
+      <li>
+        登録した GitHub アカウントは抽選参加者として記録されます。
+        <span>Your GitHub account is recorded as a registered participant.</span>
+      </li>
+      <li>
+        お一人様 5回まで抽選できます。登録状態はこのブラウザに保存されます。
+        <span>Up to 5 draws per person. Your registration is saved in this browser.</span>
+      </li>
+      <li>
+        当選者はこのページ下部の「中当選者」に表示されます。
+        <span>Winners are displayed in the JACKPOT WINNERS section below.</span>
+      </li>
+    </ul>
+  </div>
+
+  <footer>GOOD LUCK — 幸運を祈ります</footer>
+
+</div>
+
+<script>
+  /* ============================================
+     設定 / CONFIG
+     ============================================ */
+  const TOTAL_DRAWS = 5;
+  const WIN_RATE    = 0.10;   // 10%
+
+  /* localStorage キー / storage keys */
+  const KEY_SESSION  = 'gacha_session_v3';
+  const KEY_ACCOUNTS = 'gacha_accounts_v3';
+
+  /* GitHub API */
+  const GH_API = 'https://api.github.com/users/';
+
+  /* デフォルトアバター（SVG data URI） */
+  const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44'><rect width='44' height='44' fill='%230d1117'/><text x='22' y='28' font-size='20' fill='%237d86ad' text-anchor='middle'>?</text></svg>";
+
+  /* ============================================
+     ストレージ / STORAGE HELPERS
+     ============================================ */
+  function loadJSON(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function saveJSON(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function removeKey(key) {
+    try { localStorage.removeItem(key); } catch (e) {}
+  }
+
+  /* ============================================
+     状態 / STATE
+     ============================================ */
+  let registered = false;
+  let userName   = '';   /* GitHub username (login) */
+  let userAvatar = '';
+  let userDisplay= '';   /* GitHub display name (may be empty) */
+  let drawsLeft  = TOTAL_DRAWS;
+  let drawing    = false;
+  let drawCount  = 0;
+  let history    = [];
+
+  let accounts = loadJSON(KEY_ACCOUNTS, {});
+
+  /* ============================================
+     要素 / ELEMENTS
+     ============================================ */
+  const registerForm  = document.getElementById('registerForm');
+  const registeredBox = document.getElementById('registeredBox');
+  const registeredNameEl = document.getElementById('registeredName');
+  const registeredAvatarEl = document.getElementById('registeredAvatar');
+  const registeredProfileEl = document.getElementById('registeredProfile');
+
+  const ghInput   = document.getElementById('ghInput');
+  const ghHint    = document.getElementById('ghHint');
+  const registerBtn = document.getElementById('registerBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  const storageStatusEl     = document.getElementById('storageStatus');
+  const storageStatusTextEl = document.getElementById('storageStatusText');
+
+  const drawBtn     = document.getElementById('drawBtn');
+  const slot        = document.getElementById('slot');
+  const slotIcon    = document.getElementById('slotIcon');
+  const slotLabel   = document.getElementById('slotLabel');
+  const dots        = Array.from(document.querySelectorAll('.dot'));
+  const historyEl   = document.getElementById('history');
+  const historyEmpty= document.getElementById('historyEmpty');
+
+  const winnersListEl    = document.getElementById('winnersList');
+  const winnersEmptyEl   = document.getElementById('winnersEmpty');
+  const winnersCountEl   = document.getElementById('winnersCount');
+
+  /* ============================================
+     保存状態表示 / STORAGE STATUS
+     ============================================ */
+  function setStorageStatus(state, text) {
+    storageStatusEl.className = 'storage-status' + (state ? ' ' + state : '');
+    storageStatusTextEl.textContent = text;
+  }
+
+  function flashSaved() {
+    setStorageStatus('ok', '保存完了 / SAVED');
+    clearTimeout(flashSaved._t);
+    flashSaved._t = setTimeout(() => {
+      if (storageStatusEl.classList.contains('ok')) {
+        setStorageStatus('', 'ローカル保存 / LOCAL ONLY');
+      }
+    }, 1600);
+  }
+
+  /* ============================================
+     日付フォーマット / FORMAT DATE
+     ============================================ */
+  function formatDate(ts) {
+    if (!ts) return '—';
+    try {
+      const d = new Date(ts);
+      if (isNaN(d.getTime())) return '—';
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ` +
+             `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    } catch (e) { return '—'; }
+  }
+
+  /* ============================================
+     GitHub API / VERIFY USER
+     ============================================ */
+  async function fetchGitHubUser(username) {
+    const res = await fetch(GH_API + encodeURIComponent(username), {
+      headers: {
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+
+    if (res.status === 404) {
+      throw new Error('NOT_FOUND');
+    }
+    if (res.status === 403) {
+      throw new Error('RATE_LIMIT');
+    }
+    if (!res.ok) {
+      throw new Error('HTTP_' + res.status);
+    }
+
+    return await res.json();
+  }
+
+  /* ============================================
+     中当選者読み込み / LOAD WINNERS (LOCAL)
+     ============================================ */
+  function loadWinners() {
+    const winners = [];
+
+    Object.keys(accounts).forEach(name => {
+      const acc = accounts[name] || {};
+      const hist = Array.isArray(acc.history) ? acc.history : [];
+      const winItems = hist.filter(h => h && h.win);
+      if (winItems.length > 0) {
+        winners.push({
+          name:    name,
+          avatar:  acc.avatar || '',
+          wins:    winItems.length,
+          latest:  acc.updatedAt || acc.registeredAt || null
+        });
+      }
+    });
+
+    /* 中奖次数降序，其次按时间降序 */
+    winners.sort((a, b) => {
+      if (b.wins !== a.wins) return b.wins - a.wins;
+      return (b.latest || 0) - (a.latest || 0);
+    });
+
+    renderWinners(winners);
+  }
+
+  function renderWinners(winners) {
+    winnersListEl.innerHTML = '';
+    winnersCountEl.textContent = winners.length;
+
+    if (winners.length === 0) {
+      winnersEmptyEl.classList.remove('hidden');
+      return;
+    }
+
+    winnersEmptyEl.classList.add('hidden');
+
+    winners.forEach((w, i) => {
+      const item = document.createElement('div');
+      item.className = 'winner-item';
+
+      const rank = document.createElement('div');
+      rank.className = 'winner-rank';
+      rank.textContent = i + 1;
+
+      const av = document.createElement('img');
+      av.className = 'winner-avatar';
+      av.alt = w.name;
+      av.src = w.avatar || DEFAULT_AVATAR;
+      av.onerror = () => { av.src = DEFAULT_AVATAR; };
+
+      const main = document.createElement('div');
+      main.className = 'winner-main';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'winner-name';
+      const ghMark = document.createElement('span');
+      ghMark.className = 'gh-mark';
+      ghMark.textContent = '@';
+      nameEl.appendChild(ghMark);
+      nameEl.appendChild(document.createTextNode(w.name));
+
+      const meta = document.createElement('div');
+      meta.className = 'winner-meta';
+
+      const cnt = document.createElement('span');
+      cnt.className = 'winner-count';
+      cnt.textContent = '🏆 ×' + w.wins;
+
+      const time = document.createElement('span');
+      time.textContent = w.latest ? formatDate(w.latest) : '—';
+
+      meta.appendChild(cnt);
+      meta.appendChild(time);
+
+      main.appendChild(nameEl);
+      main.appendChild(meta);
+
+      item.appendChild(rank);
+      item.appendChild(av);
+      item.appendChild(main);
+
+      winnersListEl.appendChild(item);
+    });
+  }
+
+  /* ============================================
+     描画 / RENDER
+     ============================================ */
+  function renderDots() {
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('used', i >= drawsLeft);
+    });
+  }
+
+  function renderDrawBtn() {
+    if (drawing) {
+      drawBtn.disabled = true;
+      return;
+    }
+
+    if (!registered) {
+      drawBtn.disabled = true;
+      drawBtn.textContent = '抽選する（要登録） / DRAW (register first)';
+      return;
+    }
+
+    if (drawsLeft <= 0) {
+      drawBtn.disabled = true;
+      drawBtn.textContent = '抽選終了 / NO DRAWS LEFT';
+      return;
+    }
+
+    drawBtn.disabled = false;
+    drawBtn.textContent =
+      `抽選する（残り${drawsLeft}回） / DRAW (${drawsLeft} left)`;
+  }
+
+  function renderHistory() {
+    historyEl.querySelectorAll('.history-item').forEach(el => el.remove());
+
+    if (history.length === 0) {
+      historyEmpty.style.display = '';
+      return;
+    }
+
+    historyEmpty.style.display = 'none';
+
+    history.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'history-item' + (item.win ? ' win' : '');
+      row.innerHTML =
+        `<span class="h-num">#${item.index}</span>` +
+        `<span class="h-res">${item.win ? '🏆 大当たり / JACKPOT' : '✖ ハズレ / NO WIN'}</span>`;
+      historyEl.appendChild(row);
+    });
+  }
+
+  function renderSlotIdle() {
+    slot.classList.remove('win', 'lose', 'spinning');
+
+    if (!registered) {
+      slotIcon.textContent = '🎫';
+      slotLabel.innerHTML = 'まずは参加登録をしてください<br>Please register first';
+      return;
+    }
+
+    if (drawsLeft <= 0) {
+      slotIcon.textContent = '🔒';
+      slotLabel.innerHTML = '抽選は終了しました<br>All draws are finished';
+      return;
+    }
+
+    slotIcon.textContent = '🎟️';
+    slotLabel.innerHTML = '抽選の準備ができました<br>Ready to draw!';
+  }
+
+  /* ============================================
+     セッション保存 / SAVE SESSION (LOCAL)
+     ============================================ */
+  function saveSession() {
+    if (!registered) return;
+
+    setStorageStatus('saving', '保存中… / SAVING…');
+
+    accounts[userName] = {
+      drawsLeft:    drawsLeft,
+      drawCount:    drawCount,
+      history:      history,
+      avatar:       userAvatar,
+      displayName:  userDisplay,
+      registeredAt: (accounts[userName] && accounts[userName].registeredAt) || Date.now(),
+      updatedAt:    Date.now()
+    };
+    saveJSON(KEY_ACCOUNTS, accounts);
+
+    saveJSON(KEY_SESSION, {
+      name:      userName,
+      avatar:    userAvatar,
+      display:   userDisplay,
+      drawsLeft: drawsLeft,
+      drawCount: drawCount,
+      history:   history
+    });
+
+    /* 保存完了フラッシュ */
+    setTimeout(flashSaved, 200);
+
+    /* 中奖者リストも更新 */
+    loadWinners();
+  }
+
+  /* ============================================
+     復元 / RESTORE
+     ============================================ */
+  function applyAccount(data) {
+    registered  = true;
+    userName    = data.name;
+    userAvatar  = data.avatar || (data.name ? `https://github.com/${data.name}.png` : '');
+    userDisplay = data.display || '';
+    drawsLeft   = typeof data.drawsLeft === 'number' ? data.drawsLeft : TOTAL_DRAWS;
+    drawCount   = typeof data.drawCount === 'number' ? data.drawCount : 0;
+    history     = Array.isArray(data.history) ? data.history : [];
+
+    registerForm.classList.add('hidden');
+    registeredNameEl.textContent = '@' + userName;
+    registeredAvatarEl.src = userAvatar || DEFAULT_AVATAR;
+    registeredAvatarEl.onerror = () => { registeredAvatarEl.src = DEFAULT_AVATAR; };
+    registeredProfileEl.textContent = 'github.com/' + userName;
+    registeredProfileEl.href = 'https://github.com/' + userName;
+    registeredBox.classList.remove('hidden');
+
+    renderDots();
+    renderHistory();
+    renderSlotIdle();
+    renderDrawBtn();
+  }
+
+  function restoreSession() {
+    const session = loadJSON(KEY_SESSION, null);
+
+    if (session && session.name) {
+      applyAccount(session);
+      return;
+    }
+
+    const names = Object.keys(accounts);
+    if (names.length > 0) {
+      const name = names[names.length - 1];
+      const acc = accounts[name];
+      applyAccount({
+        name:      name,
+        avatar:    acc.avatar,
+        display:   acc.displayName,
+        drawsLeft: acc.drawsLeft,
+        drawCount: acc.drawCount,
+        history:   acc.history || []
+      });
+
+      saveJSON(KEY_SESSION, {
+        name:      name,
+        avatar:    acc.avatar,
+        display:   acc.displayName,
+        drawsLeft: acc.drawsLeft,
+        drawCount: acc.drawCount,
+        history:   acc.history || []
+      });
+    }
+  }
+
+  /* ============================================
+     GitHub ユーザー名 検証 / VALIDATE USERNAME
+     ============================================ */
+  const GH_USER_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/;
+
+  function setHint(message, type) {
+    ghHint.textContent = message;
+    ghHint.className = 'hint' + (type ? ' ' + type : '');
+  }
+
+  function markError(message) {
+    setHint(message, 'error');
+    ghInput.classList.add('error');
+    ghInput.classList.remove('shake');
+    void ghInput.offsetWidth;
+    ghInput.classList.add('shake');
+    ghInput.focus();
+  }
+
+  ghInput.addEventListener('input', () => {
+    ghInput.classList.remove('error');
+    if (!registered) {
+      setHint('GitHub ユーザー名を入力してください / Enter your GitHub username', '');
+    }
+  });
+
+  /* ============================================
+     参加登録 / REGISTER (with GitHub API verify)
+     ============================================ */
+  async function handleRegister() {
+    if (registered) return;
+
+    const raw = ghInput.value.trim();
+    const username = raw.replace(/^@/, '');
+
+    /* 空欄 */
+    if (!username) {
+      markError('GitHub ユーザー名を入力してください / Please enter your GitHub username');
+      return;
+    }
+
+    /* 形式チェック */
+    if (!GH_USER_RE.test(username)) {
+      markError('GitHub ユーザー名の形式が正しくありません / Invalid GitHub username format');
+      return;
+    }
+
+    /* 既登録アカウント：前回の続きから復元 */
+    if (accounts[username]) {
+      const acc = accounts[username];
+      applyAccount({
+        name:      username,
+        avatar:    acc.avatar,
+        display:   acc.displayName,
+        drawsLeft: acc.drawsLeft,
+        drawCount: acc.drawCount,
+        history:   acc.history || []
+      });
+      saveJSON(KEY_SESSION, {
+        name:      username,
+        avatar:    acc.avatar,
+        display:   acc.displayName,
+        drawsLeft: acc.drawsLeft,
+        drawCount: acc.drawCount,
+        history:   acc.history || []
+      });
+      setHint('おかえりなさい！前回の続きから再開します / Welcome back!', 'ok');
+      loadWinners();
+      return;
+    }
+
+    /* GitHub API で検証 / verify with GitHub API */
+    registerBtn.disabled = true;
+    setHint('GitHub で確認中… / Verifying with GitHub…', 'loading');
+
+    let userData;
+    try {
+      userData = await fetchGitHubUser(username);
+    } catch (e) {
+      registerBtn.disabled = false;
+      if (e.message === 'NOT_FOUND') {
+        markError('GitHub ユーザーが見つかりません / GitHub user not found');
+      } else if (e.message === 'RATE_LIMIT') {
+        markError('GitHub API の制限に達しました。しばらくしてからお試しください / Rate limit reached, try again later');
+      } else {
+        markError('GitHub への接続に失敗しました / Failed to connect to GitHub');
+      }
+      return;
+    }
+
+    /* 検証成功 / verify ok */
+    const avatar = userData.avatar_url || `https://github.com/${username}.png`;
+    const display = userData.name || '';
+
+    registered  = true;
+    userName    = userData.login;
+    userAvatar  = avatar;
+    userDisplay = display;
+    drawsLeft   = TOTAL_DRAWS;
+    drawCount   = 0;
+    history     = [];
+
+    accounts[userName] = {
+      drawsLeft:    drawsLeft,
+      drawCount:    drawCount,
+      history:      history,
+      avatar:       avatar,
+      displayName:  display,
+      registeredAt: Date.now(),
+      updatedAt:    Date.now()
+    };
+    saveJSON(KEY_ACCOUNTS, accounts);
+    saveJSON(KEY_SESSION, {
+      name:      userName,
+      avatar:    avatar,
+      display:   display,
+      drawsLeft: drawsLeft,
+      drawCount: drawCount,
+      history:   history
+    });
+
+    ghInput.classList.remove('error');
+    registerForm.classList.add('hidden');
+    registeredNameEl.textContent = '@' + userName;
+    registeredAvatarEl.src = avatar;
+    registeredAvatarEl.onerror = () => { registeredAvatarEl.src = DEFAULT_AVATAR; };
+    registeredProfileEl.textContent = 'github.com/' + userName;
+    registeredProfileEl.href = 'https://github.com/' + userName;
+    registeredBox.classList.remove('hidden');
+
+    setHint('登録が完了しました / Registration complete', 'ok');
+    registerBtn.disabled = false;
+
+    renderDots();
+    renderSlotIdle();
+    renderDrawBtn();
+
+    flashSaved();
+  }
+
+  registerBtn.addEventListener('click', handleRegister);
+  ghInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleRegister();
+    }
+  });
+
+  /* ============================================
+     ログアウト / LOGOUT
+     ============================================ */
+  logoutBtn.addEventListener('click', () => {
+    if (drawing) return;
+
+    saveSession();
+    removeKey(KEY_SESSION);
+
+    registered  = false;
+    userName    = '';
+    userAvatar  = '';
+    userDisplay = '';
+    drawsLeft   = TOTAL_DRAWS;
+    drawCount   = 0;
+    history     = [];
+
+    registeredBox.classList.add('hidden');
+    registerForm.classList.remove('hidden');
+    ghInput.value = '';
+    ghInput.classList.remove('error');
+    setHint('GitHub ユーザー名を入力してください / Enter your GitHub username', '');
+
+    renderDots();
+    renderHistory();
+    renderSlotIdle();
+    renderDrawBtn();
+
+    setStorageStatus('', 'ローカル保存 / LOCAL ONLY');
+    ghInput.focus();
+  });
+
+  /* ============================================
+     抽選 / DRAW
+     ============================================ */
+  drawBtn.addEventListener('click', () => {
+    if (!registered || drawing || drawsLeft <= 0) return;
+
+    drawing = true;
+    drawBtn.disabled = true;
+
+    slot.classList.remove('win', 'lose');
+    slot.classList.add('spinning');
+
+    const symbols = ['✦', '★', '◆', '？', '✧', '◇'];
+    let n = 0;
+
+    const spinTimer = setInterval(() => {
+      slotIcon.textContent = symbols[n++ % symbols.length];
+      slotLabel.innerHTML = '抽選中…<br>DRAWING…';
+    }, 70);
+
+    setTimeout(() => {
+      clearInterval(spinTimer);
+      slot.classList.remove('spinning');
+
+      /* 当選確率 10% */
+      const isWin = Math.random() < WIN_RATE;
+
+      drawsLeft--;
+      drawCount++;
+
+      history.push({ index: drawCount, win: isWin });
+
+      renderDots();
+      showResult(isWin, drawCount);
+      renderHistory();
+      saveSession();
+
+      drawing = false;
+      renderDrawBtn();
+    }, 1300);
+  });
+
+  /* ============================================
+     結果表示 / SHOW RESULT
+     ============================================ */
+  function showResult(isWin, index) {
+    if (isWin) {
+      slot.classList.add('win');
+      slotIcon.textContent = '🏆';
+      slotLabel.innerHTML = '大当たり！！<br>JACKPOT!!';
+      burstParticles();
+    } else {
+      slot.classList.add('lose');
+      slotIcon.textContent = '✖';
+      slotLabel.innerHTML = 'ハズレ…<br>NO WIN…';
+    }
+  }
+
+  /* ============================================
+     紙吹雪 / PARTICLES
+     ============================================ */
+  function burstParticles() {
+    const chars = ['✨', '⭐', '💫', '🌟'];
+
+    for (let i = 0; i < 16; i++) {
+      const p = document.createElement('span');
+      p.className = 'particle';
+      p.textContent = chars[i % chars.length];
+      p.style.left = (50 + (Math.random() * 70 - 35)) + '%';
+      p.style.animationDelay = (Math.random() * 0.28) + 's';
+      p.style.fontSize = (12 + Math.random() * 8) + 'px';
+
+      slot.appendChild(p);
+      setTimeout(() => p.remove(), 1800);
+    }
+  }
+
+  /* ============================================
+     初期化 / INIT
+     ============================================ */
+  renderDots();
+  renderDrawBtn();
+  restoreSession();
+  loadWinners();
+</script>
+
+</body>
+</html>

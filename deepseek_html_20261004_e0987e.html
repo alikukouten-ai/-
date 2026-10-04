@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="王国幻影の晩餐 スコアボード" />
+    <meta name="theme-color" content="#6c5ce7" />
+    <title>🎯 王国幻影の晩餐 スコアボード</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', 'Hiragino Sans',
+                         'Yu Gothic', 'Meiryo', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #f7f0fc 0%, #e8f0fe 100%);
+            padding: 24px 20px 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app {
+            max-width: 1300px;
+            width: 100%;
+        }
+
+        /* ===== ヘッダー ===== */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 28px;
+            padding: 18px 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            margin-bottom: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3436;
+            letter-spacing: 1px;
+        }
+        .header-left h1 span {
+            color: #6c5ce7;
+        }
+
+        .leader-badge {
+            background: linear-gradient(135deg, #fdcb6e, #f9ca24);
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #2d3436;
+            box-shadow: 0 4px 12px rgba(253, 203, 110, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .leader-badge .crown {
+            font-size: 20px;
+        }
+        .leader-badge .empty {
+            color: #636e72;
+            font-weight: 400;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .header-right .stats {
+            font-size: 15px;
+            color: #2d3436;
+            background: rgba(108, 92, 231, 0.10);
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fff;
+            color: #2d3436;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e0e0e0;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: #6c5ce7;
+            color: #fff;
+            border-color: #6c5ce7;
+        }
+        .btn-primary:hover {
+            background: #5a4bd1;
+            border-color: #5a4bd1;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: #fff;
+            border-color: #ff6b6b;
+        }
+        .btn-danger:hover {
+            background: #ee5a5a;
+            border-color: #ee5a5a;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #dfe6e9;
+        }
+        .btn-outline:hover {
+            border-color: #b2bec3;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        /* ===== グリッド ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 24px;
+        }
+
+        /* ===== カード ===== */
+        .team-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            transition: all 0.25s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        .team-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10);
+        }
+
+        .card-header {
+            padding: 14px 18px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+        }
+        .card-header .color-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            border-radius: 24px 24px 0 0;
+        }
+
+        .team-name-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+            margin-top: 2px;
+        }
+        .team-emoji {
+            font-size: 22px;
+            line-height: 1;
+        }
+        .team-name-input {
+            border: none;
+            background: transparent;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3436;
+            width: 100%;
+            min-width: 40px;
+            padding: 2px 4px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            outline: none;
+            font-family: inherit;
+        }
+        .team-name-input:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+        .team-name-input:focus {
+            background: rgba(108, 92, 231, 0.08);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #b2bec3;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 30px;
+            transition: all 0.2s;
+            line-height: 1;
+            font-weight: 300;
+            flex-shrink: 0;
+        }
+        .delete-btn:hover {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.12);
+            transform: scale(1.1);
+        }
+
+        .card-body {
+            padding: 18px 18px 20px;
+            text-align: center;
+        }
+
+        .score-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            position: relative;
+        }
+        .score-number {
+            font-size: 58px;
+            font-weight: 800;
+            line-height: 1;
+            transition: color 0.2s;
+            letter-spacing: -1px;
+            min-width: 80px;
+        }
+        .score-number.pop {
+            animation: scorePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes scorePop {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.30); }
+            100% { transform: scale(1); }
+        }
+
+        .crown-badge {
+            font-size: 32px;
+            line-height: 1;
+            animation: floatCrown 2s ease-in-out infinite;
+        }
+        @keyframes floatCrown {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50%      { transform: translateY(-6px) rotate(2deg); }
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .btn-score {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: #f1f2f6;
+            color: #2d3436;
+            min-width: 42px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+            font-family: inherit;
+        }
+        .btn-score:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .btn-score:active {
+            transform: scale(0.94);
+        }
+
+        .btn-score.plus {
+            background: #dfe6e9;
+            color: #2d3436;
+        }
+        .btn-score.plus:hover {
+            background: #b2bec3;
+        }
+        .btn-score.plus.colorized {
+            color: #fff;
+        }
+
+        .btn-score.minus {
+            background: #f1f2f6;
+            color: #636e72;
+        }
+        .btn-score.minus:hover {
+            background: #dfe6e9;
+        }
+        .btn-score.minus:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-score.big {
+            font-size: 18px;
+            padding: 6px 18px;
+        }
+
+        /* ===== 空状態 ===== */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 28px;
+            backdrop-filter: blur(6px);
+            border: 2px dashed #dfe6e9;
+        }
+        .empty-state p {
+            font-size: 20px;
+            color: #636e72;
+            margin-bottom: 16px;
+        }
+
+        /* ===== レスポンシブ ===== */
+        @media (max-width: 700px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+                padding: 16px 20px;
+            }
+            .header-left { justify-content: center; }
+            .header-left h1 { font-size: 22px; }
+            .header-right { justify-content: center; }
+            .leader-badge { font-size: 14px; padding: 4px 14px; }
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+                gap: 16px;
+            }
+            .score-number { font-size: 44px; min-width: 60px; }
+            .btn-score { font-size: 14px; padding: 5px 10px; min-width: 34px; }
+            .btn-score.big { font-size: 15px; padding: 5px 14px; }
+            .team-name-input { font-size: 16px; }
+            .card-body { padding: 14px 14px 16px; }
+            .card-header { padding: 10px 14px 8px; }
+            .btn { font-size: 13px; padding: 6px 14px; }
+            .header-right .stats { font-size: 13px; padding: 2px 12px; }
+        }
+
+        @media (max-width: 420px) {
+            .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .score-number { font-size: 36px; min-width: 48px; }
+            .btn-score { font-size: 12px; padding: 4px 8px; min-width: 30px; }
+            .btn-score.big { font-size: 13px; padding: 4px 10px; }
+            .team-name-input { font-size: 14px; }
+            .team-emoji { font-size: 18px; }
+            .crown-badge { font-size: 24px; }
+            .header-left h1 { font-size: 19px; }
+            .leader-badge { font-size: 12px; padding: 3px 10px; }
+        }
+
+        /* ===== モーダル ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.40);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-box {
+            background: #fff;
+            border-radius: 28px;
+            padding: 32px 40px 28px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.20);
+            transform: scale(0.92) translateY(12px);
+            transition: transform 0.25s ease;
+        }
+        .modal-overlay.active .modal-box {
+            transform: scale(1) translateY(0);
+        }
+        .modal-box h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+        .modal-box p {
+            color: #636e72;
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .modal-actions .btn {
+            min-width: 100px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app">
+
+        <header class="header">
+            <div class="header-left">
+                <h1>🎯 <span>王国幻影の晩餐</span> スコアボード</h1>
+                <div class="leader-badge" id="leaderBadge">
+                    <span class="crown">👑</span>
+                    <span id="leaderText">まだリードなし</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <span class="stats" id="totalStats">計 0 組 · 合計 0 点</span>
+                <button class="btn btn-primary" id="addTeamBtn">➕ グループを追加</button>
+                <button class="btn btn-outline" id="resetBtn">🔄 リセット</button>
+            </div>
+        </header>
+
+        <div class="grid" id="grid"></div>
+
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <h3>⚠️ リセットを確認</h3>
+            <p>すべてのグループのスコアはゼロになります。本当に続けますか？</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="modalCancel">キャンセル</button>
+                <button class="btn btn-danger" id="modalConfirm">リセットを確認</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const COLORS = [
+            { main: '#FF6B6B', light: '#ffe8e8', text: '#c0392b' },
+            { main: '#4ECDC4', light: '#e0f7f5', text: '#0e7c73' },
+            { main: '#FFD93D', light: '#fff8e0', text: '#b7950b' },
+            { main: '#6C5CE7', light: '#eeeaff', text: '#4a3db8' },
+            { main: '#FD79A8', light: '#ffe4ef', text: '#c0396b' },
+            { main: '#00B894', light: '#d4f5ed', text: '#007a5a' },
+            { main: '#FDCB6E', light: '#fef3d6', text: '#b7791f' },
+            { main: '#74B9FF', light: '#e2efff', text: '#1a6bb0' },
+        ];
+
+        const EMOJIS = ['🦊', '🐬', '🐝', '🦄', '🐼', '🦁', '🐸', '🐨'];
+
+        const DEFAULT_TEAMS = [
+            { id: 't1', name: '第一グループ', emoji: '🦊', score: 0, colorIndex: 0 },
+            { id: 't2', name: '第二グループ', emoji: '🐬', score: 0, colorIndex: 1 },
+            { id: 't3', name: '第三グループ', emoji: '🐝', score: 0, colorIndex: 2 },
+            { id: 't4', name: '第四グループ', emoji: '🦄', score: 0, colorIndex: 3 },
+        ];
+
+        let teams = [];
+        let nextId = 1;
+
+        const grid = document.getElementById('grid');
+        const leaderText = document.getElementById('leaderText');
+        const totalStats = document.getElementById('totalStats');
+        const addTeamBtn = document.getElementById('addTeamBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalConfirm = document.getElementById('modalConfirm');
+
+        function saveData() {
+            const data = { teams, nextId };
+            try {
+                localStorage.setItem('scoreboard_data_v1', JSON.stringify(data));
+            } catch (e) {
+                console.warn('保存に失敗しました', e);
+            }
+        }
+
+        function loadData() {
+            try {
+                const raw = localStorage.getItem('scoreboard_data_v1');
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                if (data && data.teams && data.teams.length > 0) return data;
+            } catch (_) {}
+            return null;
+        }
+
+        function initTeams() {
+            const saved = loadData();
+            if (saved) {
+                teams = saved.teams;
+                nextId = saved.nextId || (teams.length + 1);
+                teams.forEach((t, i) => {
+                    if (t.colorIndex === undefined) t.colorIndex = i % COLORS.length;
+                    if (!t.emoji) t.emoji = EMOJIS[i % EMOJIS.length] || '📌';
+                });
+            } else {
+                teams = DEFAULT_TEAMS.map(t => ({ ...t }));
+                nextId = teams.length + 1;
+            }
+            render();
+        }
+
+        function addTeam() {
+            const usedIndices = teams.map(t => t.colorIndex);
+            let ci = 0;
+            for (let i = 0; i < COLORS.length; i++) {
+                if (!usedIndices.includes(i)) { ci = i; break; }
+            }
+            if (usedIndices.includes(ci)) {
+                ci = teams.length % COLORS.length;
+            }
+
+            const newTeam = {
+                id: 't' + (nextId++),
+                name: `第${teams.length + 1}グループ`,
+                emoji: EMOJIS[teams.length % EMOJIS.length] || '📌',
+                score: 0,
+                colorIndex: ci,
+            };
+            teams.push(newTeam);
+            saveData();
+            render();
+        }
+
+        function deleteTeam(id) {
+            if (teams.length <= 1) {
+                alert('少なくとも1つのグループは残してください！');
+                return;
+            }
+            teams = teams.filter(t => t.id !== id);
+            saveData();
+            render();
+        }
+
+        function changeScore(id, delta) {
+            const team = teams.find(t => t.id === id);
+            if (!team) return;
+            const newScore = Math.max(0, team.score + delta);
+            if (newScore === team.score) return;
+            team.score = newScore;
+            saveData();
+            render(true);
+        }
+
+        function resetAllScores() {
+            teams.forEach(t => t.score = 0);
+            saveData();
+            render(true);
+            modalOverlay.classList.remove('active');
+        }
+
+        function getLeader() {
+            if (teams.length === 0) return null;
+            const maxScore = Math.max(...teams.map(t => t.score));
+            const leaders = teams.filter(t => t.score === maxScore);
+            return { leaders, maxScore };
+        }
+
+        function render(animate = false) {
+            if (teams.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <p>📭 まだグループがありません。「グループを追加」をクリックして始めましょう！</p>
+                        <button class="btn btn-primary" onclick="addTeam()">➕ グループを追加</button>
+                    </div>
+                `;
+                updateStatsAndLeader();
+                return;
+            }
+
+            const sorted = [...teams].sort((a, b) => b.score - a.score);
+
+            let html = '';
+            teams.forEach((team) => {
+                const color = COLORS[team.colorIndex % COLORS.length];
+                const isLeader = team.score > 0 && team.score === sorted[0].score;
+                const borderColor = team.score > 0 ? color.main : '#e8e8e8';
+                const scoreColor = team.score > 0 ? color.text : '#b2bec3';
+
+                html += `
+                    <div class="team-card" style="border-color: ${borderColor};" data-id="${team.id}">
+                        <div class="card-header">
+                            <div class="color-bar" style="background: ${color.main};"></div>
+                            <div class="team-name-wrapper">
+                                <span class="team-emoji">${team.emoji || '📌'}</span>
+                                <input class="team-name-input" type="text" value="${escapeHtml(team.name)}"
+                                       data-id="${team.id}" maxlength="12"
+                                       placeholder="グループ名を入力" />
+                            </div>
+                            <button class="delete-btn" data-id="${team.id}" title="グループを削除">✕</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="score-wrap">
+                                <span class="score-number" style="color: ${scoreColor};"
+                                      data-id="${team.id}">${team.score}</span>
+                                ${isLeader ? '<span class="crown-badge">👑</span>' : ''}
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn-score minus" data-id="${team.id}" data-delta="-5" ${team.score < 5 ? 'disabled' : ''}>−5</button>
+                                <button class="btn-score minus" data-id="${team.id}" data-delta="-1" ${team.score < 1 ? 'disabled' : ''}>−1</button>
+                                <button class="btn-score plus colorized" data-id="${team.id}" data-delta="1"
+                                        style="background: ${color.main}; color: #fff;">+1</button>
+                                <button class="btn-score plus colorized" data-id="${team.id}" data-delta="5"
+                                        style="background: ${color.main}; color: #fff;">+5</button>
+                                <button class="btn-score plus big colorized" data-id="${team.id}" data-delta="10"
+                                        style="background: ${color.main}; color: #fff;">+10</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+
+            document.querySelectorAll('.btn-score').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    changeScore(btn.dataset.id, parseInt(btn.dataset.delta, 10));
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteTeam(btn.dataset.id);
+                });
+            });
+
+            document.querySelectorAll('.team-name-input').forEach(input => {
+                input.addEventListener('change', () => {
+                    const team = teams.find(t => t.id === input.dataset.id);
+                    if (team) {
+                        const val = input.value.trim() || '未命名';
+                        team.name = val;
+                        input.value = val;
+                        saveData();
+                        updateStatsAndLeader();
+                    }
+                });
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') e.target.blur();
+                });
+            });
+
+            if (animate) {
+                document.querySelectorAll('.score-number').forEach(el => {
+                    el.classList.remove('pop');
+                    void el.offsetWidth;
+                    el.classList.add('pop');
+                });
+            }
+
+            updateStatsAndLeader();
+        }
+
+        function updateStatsAndLeader() {
+            const total = teams.reduce((sum, t) => sum + t.score, 0);
+            totalStats.textContent = `計 ${teams.length} 組 · 合計 ${total} 点`;
+
+            const leader = getLeader();
+            if (!leader || leader.maxScore === 0) {
+                leaderText.textContent = 'まだリードなし';
+                leaderText.className = 'empty';
+            } else {
+                const names = leader.leaders.map(t => t.name).join('、');
+                leaderText.textContent = `${names}  ${leader.maxScore} 点`;
+                leaderText.className = '';
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        addTeamBtn.addEventListener('click', addTeam);
+
+        resetBtn.addEventListener('click', () => {
+            if (teams.some(t => t.score > 0)) {
+                modalOverlay.classList.add('active');
+            } else {
+                resetAllScores();
+            }
+        });
+
+        modalCancel.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+        });
+        modalConfirm.addEventListener('click', resetAllScores);
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                modalOverlay.classList.remove('active');
+            }
+        });
+
+        initTeams();
+
+        window.addTeam = addTeam;
+        window.deleteTeam = deleteTeam;
+        window.changeScore = changeScore;
+        window.resetAllScores = resetAllScores;
+    </script>
+
+</body>
+</html>
